@@ -150,7 +150,8 @@ Agentic-Customer-Support-Chatbot/
 │   │   │   ├── conversationService.ts  # Conversation & message management
 │   │   │   └── llmService.ts          # Gemini API integration
 │   │   ├── routes/
-│   │   │   └── chatRoutes.ts         # API endpoints
+│   │   │   ├── chatRoutes.ts         # Chat API endpoints
+│   │   │   └── dataRoutes.ts         # Data viewing endpoints
 │   │   └── index.ts                  # Express server setup
 │   ├── package.json
 │   ├── tsconfig.json
@@ -273,7 +274,9 @@ CREATE TABLE messages (
 
 ## 🔌 API Endpoints
 
-### POST `/chat/message`
+### Chat Endpoints
+
+#### POST `/chat/message`
 Send a message to the AI agent.
 
 **Request:**
@@ -292,8 +295,8 @@ Send a message to the AI agent.
 }
 ```
 
-### GET `/chat/history/:sessionId`
-Retrieve conversation history.
+#### GET `/chat/history/:sessionId`
+Retrieve conversation history for a specific session.
 
 **Response:**
 ```json
@@ -312,7 +315,113 @@ Retrieve conversation history.
 }
 ```
 
-### GET `/health`
+### Data Endpoints
+
+#### GET `/data/conversations`
+List all conversations with optional pagination.
+
+**Query Parameters:**
+- `limit` (optional, 1-100): Number of results to return
+- `offset` (optional): Number of results to skip
+
+**Example:**
+```bash
+GET /data/conversations?limit=10&offset=0
+```
+
+**Response:**
+```json
+{
+  "conversations": [
+    {
+      "id": "uuid-here",
+      "createdAt": "2024-01-01T00:00:00.000Z",
+      "updatedAt": "2024-01-01T00:00:00.000Z"
+    }
+  ],
+  "pagination": {
+    "total": 1,
+    "limit": 10,
+    "offset": 0,
+    "hasMore": false
+  }
+}
+```
+
+#### GET `/data/conversations/:id`
+Get a specific conversation with all its messages.
+
+**Response:**
+```json
+{
+  "id": "uuid-here",
+  "createdAt": "2024-01-01T00:00:00.000Z",
+  "updatedAt": "2024-01-01T00:00:00.000Z",
+  "messages": [
+    {
+      "id": "msg-id",
+      "conversationId": "uuid-here",
+      "sender": "user",
+      "text": "Hello",
+      "timestamp": "2024-01-01T00:00:00.000Z"
+    }
+  ]
+}
+```
+
+#### GET `/data/messages`
+List all messages with optional filters and pagination.
+
+**Query Parameters:**
+- `limit` (optional, 1-100): Number of results to return
+- `offset` (optional): Number of results to skip
+- `conversationId` (optional): Filter messages by conversation ID
+
+**Example:**
+```bash
+GET /data/messages?limit=20&conversationId=uuid-here
+```
+
+**Response:**
+```json
+{
+  "messages": [
+    {
+      "id": "msg-id",
+      "conversationId": "uuid-here",
+      "sender": "user",
+      "text": "Hello",
+      "timestamp": "2024-01-01T00:00:00.000Z"
+    }
+  ],
+  "pagination": {
+    "limit": 20,
+    "offset": 0
+  },
+  "filters": {
+    "conversationId": "uuid-here"
+  }
+}
+```
+
+#### GET `/data/stats`
+Get database statistics and analytics.
+
+**Response:**
+```json
+{
+  "totalConversations": 10,
+  "totalMessages": 50,
+  "userMessages": 25,
+  "aiMessages": 25,
+  "averageMessagesPerConversation": 5.0,
+  "timestamp": "2024-01-01T00:00:00.000Z"
+}
+```
+
+### System Endpoints
+
+#### GET `/health`
 Health check endpoint.
 
 **Response:**

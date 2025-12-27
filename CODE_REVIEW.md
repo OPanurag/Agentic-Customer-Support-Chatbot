@@ -227,7 +227,9 @@ frontend/
 
 ## 📝 API Endpoints Review ✅
 
-### POST /chat/message
+### Chat Endpoints
+
+#### POST /chat/message
 - ✅ Validates input with Zod
 - ✅ Creates/retrieves conversation
 - ✅ Saves user message
@@ -236,12 +238,41 @@ frontend/
 - ✅ Returns response with sessionId
 - ✅ Handles errors gracefully
 
-### GET /chat/history/:sessionId
+#### GET /chat/history/:sessionId
 - ✅ Validates sessionId format
 - ✅ Returns conversation with messages
 - ✅ Proper error handling (404, 400)
 
-### GET /health
+### Data Endpoints
+
+#### GET /data/conversations
+- ✅ Lists all conversations
+- ✅ Supports pagination (limit, offset)
+- ✅ Validates pagination parameters
+- ✅ Returns pagination metadata
+- ✅ Proper error handling
+
+#### GET /data/conversations/:id
+- ✅ Validates conversation ID format
+- ✅ Returns conversation with all messages
+- ✅ Proper error handling (404, 400)
+
+#### GET /data/messages
+- ✅ Lists all messages
+- ✅ Supports pagination (limit, offset)
+- ✅ Optional conversation filter
+- ✅ Validates all parameters
+- ✅ Proper error handling
+
+#### GET /data/stats
+- ✅ Returns database statistics
+- ✅ Includes conversation and message counts
+- ✅ Calculates averages
+- ✅ Returns timestamp
+
+### System Endpoints
+
+#### GET /health
 - ✅ Health check endpoint
 - ✅ Returns status and timestamp
 

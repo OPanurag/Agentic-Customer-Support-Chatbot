@@ -66,6 +66,98 @@ export class ConversationService {
       .prepare('SELECT * FROM messages WHERE conversationId = ? ORDER BY timestamp ASC')
       .all(conversationId) as MessageData[];
   }
+
+  getAllConversations(limit?: number, offset?: number): ConversationData[] {
+    let query = 'SELECT * FROM conversations ORDER BY updatedAt DESC';
+    const params: any[] = [];
+    
+    if (limit !== undefined) {
+      query += ' LIMIT ?';
+      params.push(limit);
+      if (offset !== undefined) {
+        query += ' OFFSET ?';
+        params.push(offset);
+      }
+    }
+    
+    return dbInstance.prepare(query).all(...params) as ConversationData[];
+  }
+
+  getConversationWithMessages(conversationId: string): (ConversationData & { messages: MessageData[] }) | null {
+    const conversation = this.getConversation(conversationId);
+    if (!conversation) {
+      return null;
+    }
+    
+    const messages = this.getMessages(conversationId);
+    return { ...conversation, messages };
+  }
+
+  getAllMessages(limit?: number, offset?: number, conversationId?: string): MessageData[] {
+    let query = 'SELECT * FROM messages';
+    const params: any[] = [];
+    
+    if (conversationId) {
+      query += ' WHERE conversationId = ?';
+      params.push(conversationId);
+    }
+    
+    query += ' ORDER BY timestamp DESC';
+    
+    if (limit !== undefined) {
+      query += ' LIMIT ?';
+      params.push(limit);
+      if (offset !== undefined) {
+        query += ' OFFSET ?';
+        params.push(offset);
+      }
+    }
+    
+    return dbInstance.prepare(query).all(...params) as MessageData[];
+  }
+
+  getStats(): {
+    totalConversations: number;
+    totalMessages: number;
+    userMessages: number;
+    aiMessages: number;
+    averageMessagesPerConversation: number;
+  } {
+    const totalConversations = dbInstance
+      .prepare('SELECT COUNT(*) as count FROM conversations')
+      .get() as { count: number };
+    
+    const totalMessages = dbInstance
+      .prepare('SELECT COUNT(*) as count FROM messages')
+      .get() as { count: number };
+    
+    const userMessages = dbInstance
+      .prepare("SELECT COUNT(*) as count FROM messages WHERE sender = 'user'")
+      .get() as { count: number };
+    
+    const aiMessages = dbInstance
+      .prepare("SELECT COUNT(*) as count FROM messages WHERE sender = 'ai'")
+      .get() as { count: number };
+    
+    const avgMessages = totalConversations.count > 0
+      ? totalMessages.count / totalConversations.count
+      : 0;
+    
+    return {
+      totalConversations: totalConversations.count,
+      totalMessages: totalMessages.count,
+      userMessages: userMessages.count,
+      aiMessages: aiMessages.count,
+      averageMessagesPerConversation: Math.round(avgMessages * 100) / 100,
+    };
+  }
+
+  getConversationCount(): number {
+    const result = dbInstance
+      .prepare('SELECT COUNT(*) as count FROM conversations')
+      .get() as { count: number };
+    return result.count;
+  }
 }
 
 export const conversationService = new ConversationService();

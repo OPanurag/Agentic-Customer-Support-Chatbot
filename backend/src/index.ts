@@ -3,6 +3,7 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 import { initDatabase } from './db/database.js';
 import chatRoutes from './routes/chatRoutes.js';
+import dataRoutes from './routes/dataRoutes.js';
 
 dotenv.config();
 
@@ -23,6 +24,7 @@ app.get('/health', (req, res) => {
 
 // API routes
 app.use('/chat', chatRoutes);
+app.use('/data', dataRoutes);
 
 // Error handling middleware
 app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
