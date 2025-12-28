@@ -1,7 +1,11 @@
 import { Router, Request, Response } from 'express';
 import { conversationService } from '../services/conversationService.js';
+import { apiKeyAuth } from '../middleware/auth.js';
 
 const router = Router();
+
+// Apply API key authentication to all data routes
+router.use(apiKeyAuth);
 
 // GET /data/conversations - List all conversations with pagination
 router.get('/conversations', (req: Request, res: Response) => {

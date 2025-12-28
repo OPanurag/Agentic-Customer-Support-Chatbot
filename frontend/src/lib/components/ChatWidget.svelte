@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
+	import { marked } from 'marked';
 	import { sendMessage, getConversationHistory, type Message } from '../api';
 
 	let messages: Message[] = [];
@@ -107,6 +108,20 @@
 			error = null;
 		}
 	}
+
+	// Format message text - convert markdown to HTML for AI messages
+	function formatMessage(text: string, sender: 'user' | 'ai'): string {
+		if (sender === 'ai') {
+			// Configure marked for safe rendering
+			marked.setOptions({
+				breaks: true, // Convert line breaks to <br>
+				gfm: true, // GitHub Flavored Markdown
+			});
+			return marked.parse(text) as string;
+		}
+		// User messages stay as plain text (escape HTML)
+		return text.replace(/</g, '&lt;').replace(/>/g, '&gt;');
+	}
 </script>
 
 <div class="chat-widget">
@@ -156,7 +171,13 @@
 		{#each messages as message (message.id)}
 			<div class="message message-{message.sender}">
 				<div class="message-content">
-					<div class="message-text">{message.text}</div>
+					<div class="message-text">
+						{#if message.sender === 'ai'}
+							{@html formatMessage(message.text, message.sender)}
+						{:else}
+							{message.text}
+						{/if}
+					</div>
 					<div class="message-time">
 						{new Date(message.timestamp).toLocaleTimeString([], {
 							hour: '2-digit',
@@ -332,7 +353,58 @@
 
 	.message-text {
 		margin-bottom: 0.25rem;
-		line-height: 1.5;
+		line-height: 1.6;
+	}
+
+	/* Markdown styling for AI messages */
+	.message-ai .message-text {
+		color: #333;
+	}
+
+	.message-ai .message-text :global(p) {
+		margin: 0.5rem 0;
+	}
+
+	.message-ai .message-text :global(p:first-child) {
+		margin-top: 0;
+	}
+
+	.message-ai .message-text :global(p:last-child) {
+		margin-bottom: 0;
+	}
+
+	.message-ai .message-text :global(ul),
+	.message-ai .message-text :global(ol) {
+		margin: 0.75rem 0;
+		padding-left: 1.5rem;
+	}
+
+	.message-ai .message-text :global(li) {
+		margin: 0.5rem 0;
+		line-height: 1.6;
+	}
+
+	.message-ai .message-text :global(strong) {
+		font-weight: 600;
+		color: #1a1a1a;
+	}
+
+	.message-ai .message-text :global(em) {
+		font-style: italic;
+	}
+
+	.message-ai .message-text :global(code) {
+		background: #f4f4f4;
+		padding: 0.2rem 0.4rem;
+		border-radius: 3px;
+		font-size: 0.9em;
+		font-family: 'Courier New', monospace;
+	}
+
+	.message-ai .message-text :global(hr) {
+		border: none;
+		border-top: 1px solid #e0e0e0;
+		margin: 1rem 0;
 	}
 
 	.message-time {

@@ -37,11 +37,17 @@ PRODUCT INFORMATION:
 
 IMPORTANT GUIDELINES:
 - Answer customer questions clearly, concisely, and in a friendly tone using ONLY the information provided above.
+- Format your responses using markdown for better readability:
+  * Use bullet points (- or *) for lists
+  * Use **bold** for important information
+  * Use line breaks to separate different topics
+  * Keep paragraphs short and easy to read
 - If a customer asks about something NOT covered in the knowledge base above (e.g., specific product details, pricing for individual items, technical specifications, order status, account issues, payment problems, or questions unrelated to our store policies), politely acknowledge that you don't have that specific information.
 - For out-of-scope questions, respond with: "I don't have that specific information in my knowledge base, but I'd be happy to connect you with our human support team who can help you with that. Please email us at support@spurstore.com or contact us during our support hours."
 - Stay focused on shipping, returns, support hours, and general product information as outlined above.
 - Never make up information or guess about details not provided in the knowledge base.
 - Always maintain a helpful and professional tone, even when redirecting to human support.
+- When listing multiple items or topics, use markdown bullet points for clarity.
 `;
 
 export class LLMService {
@@ -55,7 +61,7 @@ export class LLMService {
     }
     
     this.genAI = new GoogleGenerativeAI(apiKey);
-    this.model = this.genAI.getGenerativeModel({ model: 'gemini-pro' });
+    this.model = this.genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
   }
 
   async generateReply(

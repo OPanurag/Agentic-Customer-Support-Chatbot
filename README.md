@@ -454,28 +454,59 @@ Health check endpoint.
 
 ## 🚢 Deployment
 
+This application is **production-ready** and optimized for free open-source hosting platforms.
+
+### Quick Deploy
+
+See **[DEPLOYMENT.md](DEPLOYMENT.md)** for detailed deployment instructions for:
+- **Render.com** (Free tier available)
+- **Railway.app** (Free tier with $5 credit/month)
+- **Fly.io** (Generous free tier)
+- **Vercel** (Frontend - excellent SvelteKit support)
+
+### Pre-configured Files
+
+The repository includes:
+- ✅ `render.yaml` - Render.com configuration
+- ✅ `railway.json` - Railway.app configuration
+- ✅ `Procfile` - Heroku compatibility
+- ✅ `.env.example` files for both backend and frontend
+
 ### Backend Deployment
 
-The backend can be deployed to services like:
-- **Render**: Add build command `npm run build` and start command `npm start`
-- **Railway**: Similar setup
-- **Heroku**: Add a `Procfile` with `web: npm start`
+The backend can be deployed to:
+- **Render**: Uses `render.yaml` for automatic setup
+- **Railway**: Uses `railway.json` configuration
+- **Fly.io**: CLI-based deployment
+- **Heroku**: Uses `Procfile` (paid tier only)
 
-Make sure to:
-1. Set environment variables (especially `GEMINI_API_KEY`)
-2. Use a production database (PostgreSQL recommended for production)
-3. Update `DATABASE_PATH` or use a database URL
+**Required Environment Variables:**
+- `GEMINI_API_KEY` - Your Google Gemini API key
+- `FRONTEND_URL` - Your frontend domain (for CORS)
+- `API_KEY` - Secure key for data endpoints (optional but recommended)
+- `DATABASE_PATH` - Path to SQLite file (or use PostgreSQL)
+
+**Features:**
+- ✅ CORS configured with environment variables
+- ✅ Rate limiting enabled (100 requests/15min in production)
+- ✅ API key authentication for data endpoints
+- ✅ Enhanced health check with database connectivity
 
 ### Frontend Deployment
 
 The frontend can be deployed to:
-- **Vercel**: Automatic SvelteKit support
+- **Vercel**: Automatic SvelteKit support (recommended)
 - **Netlify**: Automatic SvelteKit support
 - **Cloudflare Pages**: Automatic SvelteKit support
+- **Render/Railway**: Using Node.js adapter
 
-Make sure to:
-1. Set `VITE_API_URL` environment variable to your backend URL
-2. Update CORS settings in backend to allow your frontend domain
+**Required Environment Variables:**
+- `VITE_API_URL` - Your backend API URL
+
+**Features:**
+- ✅ Configured with `@sveltejs/adapter-node` for compatibility
+- ✅ Production build scripts ready
+- ✅ Environment-aware API URL configuration
 
 ## 🔒 Security Considerations
 
