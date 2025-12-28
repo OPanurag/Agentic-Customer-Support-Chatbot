@@ -93,9 +93,9 @@ BACKEND_PORT=10000
 
 echo "=== Starting Application ==="
 echo "NODE_ENV: ${NODE_ENV:-production}"
-echo "Backend PORT: ${BACKEND_PORT}"
-echo "Frontend PORT: ${FRONTEND_PORT}"
-echo "Database path: ${DATABASE_PATH:-/app/data/chatbot.db}"
+echo "Backend PORT: ${BACKEND_PORT} (internal only)"
+echo "Frontend PORT: ${FRONTEND_PORT} (public)"
+echo "Database path: /app/data/chatbot.db"
 
 # Verify build outputs exist
 echo "Verifying build outputs..."
@@ -116,12 +116,12 @@ echo "✓ Frontend build found"
 # Ensure database directory exists and is writable
 mkdir -p /app/data
 chmod 777 /app/data
-echo "✓ Database directory ready at ${DATABASE_PATH:-/app/data/chatbot.db}"
+echo "✓ Database directory ready at /app/data/chatbot.db"
 
 # Start services with concurrently
 echo "Starting services..."
 cd /app && exec concurrently --kill-others-on-fail --raw \
-  "cd /app/backend && PORT=${BACKEND_PORT} DATABASE_PATH=${DATABASE_PATH:-/app/data/chatbot.db} node dist/index.js" \
+  "cd /app/backend && PORT=${BACKEND_PORT} DATABASE_PATH=/app/data/chatbot.db node dist/index.js" \
   "cd /app/frontend && PORT=${FRONTEND_PORT} BACKEND_URL=http://localhost:${BACKEND_PORT} node build/index.js"
 EOF
 RUN chmod +x /app/start-concurrent.sh
