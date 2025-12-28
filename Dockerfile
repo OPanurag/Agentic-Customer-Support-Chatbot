@@ -58,7 +58,7 @@ WORKDIR /app/backend
 COPY backend/package*.json ./
 
 # Install backend production dependencies
-RUN npm ci --only=production
+RUN npm ci --omit=dev
 
 # Copy built backend from builder
 COPY --from=backend-builder /app/backend/dist ./dist
@@ -73,7 +73,7 @@ WORKDIR /app/frontend
 COPY frontend/package*.json ./
 
 # Install frontend production dependencies
-RUN npm ci --only=production
+RUN npm ci --omit=dev
 
 # Copy built frontend from builder
 COPY --from=frontend-builder /app/frontend/build ./build
