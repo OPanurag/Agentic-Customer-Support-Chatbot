@@ -35,9 +35,9 @@ COPY frontend/src ./src
 # Copy static directory (now always exists, even if empty)
 COPY frontend/static ./static
 
-# Build frontend with API URL (defaults to localhost:3001 for same-container deployment)
-# This can be overridden with build arg if needed
-ARG VITE_API_URL=http://localhost:3001
+# Build frontend with API URL pointing to backend on port 10000
+# Backend uses port 10000 internally (high port unlikely to conflict with Render's PORT)
+ARG VITE_API_URL=http://localhost:10000
 ENV VITE_API_URL=${VITE_API_URL}
 
 # Build frontend
@@ -88,17 +88,10 @@ set -e
 
 # Port configuration:
 # - Frontend uses Render's PORT (if set) or FRONTEND_PORT or default 3000
-# - Backend always uses 3001 (frontend is built with VITE_API_URL pointing to localhost:3001)
+# - Backend always uses port 10000 internally (high port, very unlikely to conflict with Render's PORT)
+# - Frontend is built with VITE_API_URL pointing to localhost:10000
 FRONTEND_PORT=${PORT:-${FRONTEND_PORT:-3000}}
-BACKEND_PORT=3001
-
-# Check for port conflict
-if [ "$FRONTEND_PORT" = "$BACKEND_PORT" ]; then
-  echo "ERROR: Port conflict! Frontend and backend cannot both use port $FRONTEND_PORT"
-  echo "Please set PORT environment variable to a different value (e.g., 3000, 8080, etc.)"
-  echo "Backend must use port 3001 (frontend is built expecting backend on localhost:3001)"
-  exit 1
-fi
+BACKEND_PORT=10000
 
 echo "=== Starting Application ==="
 echo "NODE_ENV: ${NODE_ENV:-production}"
@@ -135,18 +128,19 @@ cd /app && exec concurrently --kill-others-on-fail --raw \
 EOF
 RUN chmod +x /app/start-concurrent.sh
 
-# Expose ports
-EXPOSE 3001 3000
+# Expose ports (frontend uses Render's PORT, backend uses 10000 internally)
+# Note: Only the frontend port needs to be exposed externally
+EXPOSE 3000
 
 # Set environment variables
 ENV NODE_ENV=production
-ENV BACKEND_PORT=3001
+ENV BACKEND_PORT=10000
 ENV FRONTEND_PORT=3000
 ENV DATABASE_PATH=/app/data/chatbot.db
 
-# Health check (checks backend)
+# Health check (checks backend on port 10000)
 HEALTHCHECK --interval=30s --timeout=3s --start-period=10s --retries=3 \
-  CMD node -e "require('http').get('http://localhost:3001/health', (r) => {process.exit(r.statusCode === 200 ? 0 : 1)})"
+  CMD node -e "require('http').get('http://localhost:10000/health', (r) => {process.exit(r.statusCode === 200 ? 0 : 1)})"
 
 # Start both services using concurrently
 CMD ["sh", "/app/start-concurrent.sh"]
