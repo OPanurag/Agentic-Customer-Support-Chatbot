@@ -35,10 +35,8 @@ COPY frontend/src ./src
 # Copy static directory (now always exists, even if empty)
 COPY frontend/static ./static
 
-# Build frontend with API URL pointing to backend on port 10000
-# Backend uses port 10000 internally (high port unlikely to conflict with Render's PORT)
-ARG VITE_API_URL=http://localhost:10000
-ENV VITE_API_URL=${VITE_API_URL}
+# Frontend now uses relative URLs (/api) which are proxied by SvelteKit to the backend
+# No need to set VITE_API_URL at build time
 
 # Build frontend
 RUN npm run build
@@ -118,13 +116,13 @@ echo "✓ Frontend build found"
 # Ensure database directory exists and is writable
 mkdir -p /app/data
 chmod 777 /app/data
-echo "✓ Database directory ready"
+echo "✓ Database directory ready at ${DATABASE_PATH:-/app/data/chatbot.db}"
 
 # Start services with concurrently
 echo "Starting services..."
 cd /app && exec concurrently --kill-others-on-fail --raw \
   "cd /app/backend && PORT=${BACKEND_PORT} DATABASE_PATH=${DATABASE_PATH:-/app/data/chatbot.db} node dist/index.js" \
-  "cd /app/frontend && PORT=${FRONTEND_PORT} node build/index.js"
+  "cd /app/frontend && PORT=${FRONTEND_PORT} BACKEND_URL=http://localhost:${BACKEND_PORT} node build/index.js"
 EOF
 RUN chmod +x /app/start-concurrent.sh
 

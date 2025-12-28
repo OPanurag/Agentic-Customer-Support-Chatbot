@@ -1,4 +1,6 @@
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
+// Use relative URL for API calls - SvelteKit will proxy to backend
+// In production, this avoids CORS issues since both are on the same origin
+const API_BASE_URL = import.meta.env.VITE_API_URL || '/api';
 
 export interface Message {
 	id: string;
